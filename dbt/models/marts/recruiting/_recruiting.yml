@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: mart_open_roles
+    description: Open market postings by company board, role family and seniority (fixtures excluded by default).
+    tests:
+      - unique_combination:
+          arguments: {columns: [company_board, role_family, seniority]}
+    columns:
+      - name: company_board
+        description: Greenhouse or Lever board the postings came from (one per tracked company).
+      - name: role_family
+        description: Role family assigned by the Dataflow title classifier.
+      - name: seniority
+        description: Seniority assigned by the title classifier (intern, entry, mid, senior, lead, ...).
+      - name: open_postings
+        description: Number of open postings in the group.
+      - name: remote_share
+        description: Share of the group's postings marked remote.
+        tests: [is_proportion]
+      - name: median_days_open
+        description: Median days since posting, as of the run date.
+      - name: as_of
+        description: Latest ingestion timestamp in the group.
+
+  - name: mart_replacement_pressure
+    description: Internal attrition joined to external demand per role family, with a retention priority label.
+    columns:
+      - name: role_family
+        description: Role family shared by HRIS job roles and market postings.
+        tests: [unique, not_null]
+      - name: headcount
+        description: Employees in the role family.
+      - name: leavers
+        description: Leavers in the role family (null when suppressed).
+      - name: attrition_rate
+        description: leavers / headcount (null when suppressed).
+      - name: company_rate
+        description: Company-wide attrition rate.
+      - name: lift_vs_company
+        description: attrition_rate / company_rate (null when suppressed).
+      - name: market_open_postings
+        description: Open postings for the role family across tracked boards.
+      - name: market_entry_postings
+        description: Of those, postings at intern or entry seniority.
+      - name: market_demand_pct_rank
+        description: Percent rank of market_open_postings across role families (1 = most in demand).
+      - name: priority
+        description: act now (lift >= 1.25 and demand at or above median), monitor, stable or insufficient data.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['act now', 'monitor: high attrition', 'monitor: hot market', 'stable', 'insufficient data']

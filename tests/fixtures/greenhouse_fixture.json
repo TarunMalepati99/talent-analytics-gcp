@@ -1,0 +1,12 @@
+{"_note": "Hand-written test fixture in the shape of the Greenhouse Job Board API. Not real postings.",
+ "jobs": [
+  {"id": 1001, "title": "Senior Data Engineer, People Analytics", "updated_at": "2026-10-15T09:30:00-04:00", "first_published": "2026-09-20T10:00:00-04:00",
+   "location": {"name": "Remote - US"}, "departments": [{"name": "People"}, {"name": "People Analytics"}], "absolute_url": "https://example.com/jobs/1001"},
+  {"id": 1002, "title": "Technical Recruiter", "updated_at": "2026-10-10T12:00:00Z", "first_published": "2026-10-01T12:00:00Z",
+   "location": {"name": "New York, NY"}, "departments": [{"name": "Talent Acquisition"}], "absolute_url": "https://example.com/jobs/1002"},
+  {"id": 1003, "title": "Account Executive, Enterprise", "updated_at": "2026-10-18T08:00:00Z",
+   "location": {"name": "Chicago, IL"}, "departments": [{"name": "Sales"}], "absolute_url": "https://example.com/jobs/1003"},
+  {"id": 1004, "title": "Research Scientist, Assay Development", "updated_at": "2026-10-12T08:00:00Z", "first_published": "2026-08-30T08:00:00Z",
+   "location": {"name": "Boston, MA"}, "departments": [{"name": "R&D"}], "absolute_url": "https://example.com/jobs/1004"},
+  {"id": 1005, "title": "", "updated_at": "2026-10-12T08:00:00Z", "location": {"name": "Boston, MA"}, "departments": []}
+ ]}

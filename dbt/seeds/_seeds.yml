@@ -1,0 +1,25 @@
+version: 2
+seeds:
+  - name: job_role_family_map
+    description: Maps HRIS job roles to the role families used to classify market postings, so internal attrition and external demand can be joined.
+    columns:
+      - name: job_role
+        tests: [unique, not_null]
+      - name: role_family
+        tests: [not_null]
+  - name: kpi_definitions
+    description: One row per KPI - name, plain-language definition, numerator, denominator, direction, target and owner. Targets are placeholders until agreed with each owner.
+    columns:
+      - name: kpi_id
+        tests: [unique, not_null]
+      - name: direction
+        tests:
+          - accepted_values:
+              arguments: {values: ['lower_is_better', 'higher_is_better']}
+      - name: target
+        tests: [not_null, is_proportion]
+  - name: jolts_series
+    description: BLS JOLTS series pulled by ingestion/fetch_jolts.py (kept in sync with config/jolts_series.yaml).
+    columns:
+      - name: series_id
+        tests: [unique, not_null]

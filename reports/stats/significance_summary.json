@@ -1,0 +1,60 @@
+{
+  "n_employees": 1470,
+  "n_leavers": 237,
+  "alpha": 0.05,
+  "chi_square": {
+    "factors_tested": 17,
+    "significant_after_bh": 13,
+    "not_significant": [
+      "pay_quartile_in_level",
+      "education_level",
+      "gender",
+      "is_promotion_stalled"
+    ]
+  },
+  "logistic_regression": {
+    "parameters": 27,
+    "events_per_parameter": 8.8,
+    "converged": true,
+    "log_likelihood": -462.394583246695,
+    "mcfadden_pseudo_r2": 0.2878473078047773,
+    "aic": 980.78916649339,
+    "llr_p_value": 1.05570111155586e-62,
+    "significant_terms": 15
+  },
+  "overtime_x_early_tenure": {
+    "lr_statistic": 0.7834942867859809,
+    "df": 1,
+    "p_value": 0.37607458862641674,
+    "significant": false,
+    "interaction_odds_ratio": 1.3843330754693037,
+    "overtime_or_tenure_gt_2y": {
+      "odds_ratio": 5.178782061579264,
+      "ci_low": 3.398312341495632,
+      "ci_high": 7.892089056632008
+    },
+    "overtime_or_tenure_le_2y": {
+      "odds_ratio": 7.169159298491284,
+      "ci_low": 3.9096008494658596,
+      "ci_high": 13.146315193318522
+    },
+    "risk_gap_tenure_le_2y": {
+      "overtime_rate": 0.5096153846153846,
+      "no_overtime_rate": 0.20588235294117646,
+      "gap_pp": 30.37330316742081,
+      "gap_ci_low_pp": 19.47845917586047,
+      "gap_ci_high_pp": 41.26814715898116,
+      "n_overtime": 104,
+      "n_no_overtime": 238
+    },
+    "risk_gap_tenure_gt_2y": {
+      "overtime_rate": 0.23717948717948717,
+      "no_overtime_rate": 0.07475490196078431,
+      "gap_pp": 16.242458521870283,
+      "gap_ci_low_pp": 11.189505518826644,
+      "gap_ci_high_pp": 21.295411524913924,
+      "n_overtime": 312,
+      "n_no_overtime": 816
+    }
+  }
+}

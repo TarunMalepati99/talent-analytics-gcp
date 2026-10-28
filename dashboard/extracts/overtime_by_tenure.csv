@@ -1,0 +1,11 @@
+tenure_band,overtime_group,headcount,leavers,is_suppressed,attrition_rate
+0: <1 yr,No overtime,30,6,False,0.2
+0: <1 yr,Overtime,14,10,False,0.7142857142857143
+1: 1-2 yrs,No overtime,208,43,False,0.20673076923076922
+1: 1-2 yrs,Overtime,90,43,False,0.4777777777777778
+2: 3-5 yrs,No overtime,307,24,False,0.0781758957654723
+2: 3-5 yrs,Overtime,127,36,False,0.28346456692913385
+3: 6-10 yrs,No overtime,328,24,False,0.07317073170731707
+3: 6-10 yrs,Overtime,120,31,False,0.25833333333333336
+4: 10+ yrs,No overtime,181,13,False,0.0718232044198895
+4: 10+ yrs,Overtime,65,7,False,0.1076923076923077

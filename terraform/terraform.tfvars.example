@@ -1,0 +1,9 @@
+project_id  = "your-gcp-project"
+bucket_name = "your-gcp-project-talent-lake"
+
+# Use real groups or your own user for a solo demo, e.g. "user:you@gmail.com"
+hr_analysts_members    = ["user:you@example.com"]
+people_viewers_members = []
+recruiting_members     = []
+
+create_composer = false

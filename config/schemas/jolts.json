@@ -1,0 +1,32 @@
+[
+  {
+    "name": "series_id",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "year",
+    "type": "INT64",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "period",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "value",
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "is_preliminary",
+    "type": "BOOL",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "ingested_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED"
+  }
+]

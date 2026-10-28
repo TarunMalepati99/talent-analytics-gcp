@@ -1,0 +1,44 @@
+name: talent_analytics
+version: "1.0.0"
+config-version: 2
+profile: talent_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  raw_schema: talent_raw
+  # Small-cell suppression: segments with fewer employees than this have their
+  # attrition metrics nulled out so individuals can't be re-identified.
+  min_cell_size: 10
+  # Years without promotion after which an employee counts as "promotion stalled".
+  promotion_stall_years: 5
+  # Data Catalog policy tag resource names (output of terraform apply). Only used
+  # on the BigQuery target; leave empty for local DuckDB runs.
+  policy_tag_compensation: ""
+  policy_tag_demographics: ""
+
+models:
+  talent_analytics:
+    +persist_docs: {relation: true, columns: true}
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      people:
+        +schema: people_marts
+        +post-hook: "{{ apply_policy_tags() }}"
+      recruiting:
+        +schema: recruiting_marts
+
+seeds:
+  talent_analytics:
+    +schema: reference

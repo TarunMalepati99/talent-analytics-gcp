@@ -1,0 +1,18 @@
+factor,kind,reference,factor_group,in_model,label
+works_overtime,binary,,workplace,1,Works overtime
+tenure_band,categorical,2: 3-5 yrs,workplace,1,Tenure band
+job_level,categorical,2,workplace,1,Job level
+business_travel,categorical,Travel_Rarely,workplace,1,Business travel
+department,categorical,Research & Development,workplace,1,Department
+is_promotion_stalled,binary,,workplace,1,Promotion stalled (5+ yrs)
+stock_option_level,categorical,1,workplace,1,Stock option level
+job_satisfaction,ordinal,,workplace,1,Job satisfaction (1-4)
+environment_satisfaction,ordinal,,workplace,1,Environment satisfaction (1-4)
+work_life_balance,ordinal,,workplace,1,Work-life balance (1-4)
+job_role,categorical,Research Scientist,workplace,0,Job role
+pay_quartile_in_level,categorical,2,workplace,0,Pay quartile within level
+age_band,categorical,35-44,demographic,1,Age band
+gender,categorical,Male,demographic,1,Gender
+marital_status,categorical,Married,demographic,1,Marital status
+education_level,categorical,3: Bachelor,demographic,0,Education level
+education_field,categorical,Life Sciences,demographic,0,Education field

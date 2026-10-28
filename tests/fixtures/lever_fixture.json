@@ -1,0 +1,11 @@
+[
+ {"_note": "Hand-written test fixture in the shape of the Lever Postings API. Not a real posting.",
+  "id": "a1b2c3", "text": "Laboratory Technician II", "createdAt": 1759312800000, "updatedAt": 1760522400000,
+  "categories": {"department": "Research & Development", "team": "Lab Operations", "location": "Indianapolis, IN", "commitment": "Full-time"},
+  "workplaceType": "onsite", "hostedUrl": "https://example.com/lever/a1b2c3"},
+ {"id": "d4e5f6", "text": "Sales Development Representative", "createdAt": 1760004000000,
+  "categories": {"department": "Sales", "team": "SDR", "location": "Remote", "commitment": "Full-time"},
+  "workplaceType": "remote", "hostedUrl": "https://example.com/lever/d4e5f6"},
+ {"id": "g7h8i9", "text": "HR Business Partner", "createdAt": 1758103200000,
+  "categories": {"department": "People", "location": "Austin, TX"}, "workplaceType": "hybrid", "hostedUrl": "https://example.com/lever/g7h8i9"}
+]

@@ -1,0 +1,109 @@
+{
+  "generated_at": "2026-10-28T15:45:20+00:00",
+  "min_cell_size": 10,
+  "data_caveat": "HRIS data is IBM's public HR Analytics Employee Attrition dataset, which IBM describes as fictional; figures demonstrate the method, not a real company.",
+  "files": {
+    "kpi_scorecard.csv": {
+      "rows": 28,
+      "columns": [
+        "kpi_id",
+        "kpi_name",
+        "slice_type",
+        "slice_value",
+        "is_suppressed",
+        "numerator",
+        "denominator",
+        "kpi_value",
+        "target",
+        "direction",
+        "target_status",
+        "owner",
+        "definition"
+      ],
+      "sha256": "feb27ac7cc2b3cba5a43e5cd70c49132b0731bf9137eac819ab7654e2cb467d1"
+    },
+    "attrition_segments.csv": {
+      "rows": 52,
+      "columns": [
+        "department",
+        "job_role",
+        "role_family",
+        "tenure_band",
+        "headcount",
+        "is_suppressed",
+        "leavers",
+        "attrition_rate"
+      ],
+      "sha256": "87e011faa2957fea457eb91b903eb4eb117de287e639a4c0a89b24987dc1232b"
+    },
+    "overtime_by_tenure.csv": {
+      "rows": 10,
+      "columns": [
+        "tenure_band",
+        "overtime_group",
+        "headcount",
+        "leavers",
+        "is_suppressed",
+        "attrition_rate"
+      ],
+      "sha256": "d892fda69ac7b861d71ba722dba1b65c4543084770f7ccad57db23e1bdec95ff"
+    },
+    "attrition_by_factor.csv": {
+      "rows": 70,
+      "columns": [
+        "factor",
+        "label",
+        "factor_group",
+        "factor_level",
+        "level_label",
+        "headcount",
+        "is_suppressed",
+        "leavers",
+        "attrition_rate",
+        "ci_low",
+        "ci_high",
+        "company_rate",
+        "vs_company"
+      ],
+      "sha256": "42dd3b0e0fe11407ff4f8f0805f97b233c4881311dd33b98ed170ffc8153a1e8"
+    },
+    "significance_tests.csv": {
+      "rows": 17,
+      "columns": [
+        "factor",
+        "label",
+        "factor_group",
+        "levels",
+        "n",
+        "chi2",
+        "dof",
+        "p_value",
+        "cramers_v",
+        "effect_size",
+        "min_expected_count",
+        "share_cells_expected_lt5",
+        "p_adj_bh",
+        "significant_bh"
+      ],
+      "sha256": "cf2e36085f935e055ecb130a6a30692f0cf904c1966e8133d2fe7b252fe1166b"
+    },
+    "adjusted_odds_ratios.csv": {
+      "rows": 27,
+      "columns": [
+        "term",
+        "factor",
+        "factor_group",
+        "level",
+        "reference",
+        "coef",
+        "std_err",
+        "odds_ratio",
+        "ci_low",
+        "ci_high",
+        "p_value",
+        "significant"
+      ],
+      "sha256": "2624aa5c4e02fb88fc8cca1191775d8d8896455c0aee0d1ff6746671e42fb39c"
+    }
+  }
+}

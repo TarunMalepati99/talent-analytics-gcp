@@ -1,0 +1,5 @@
+# Extra packages for running against Google Cloud
+-r requirements.txt
+apache-beam[gcp]==2.77.0
+dbt-bigquery>=1.9,<2
+google-cloud-storage>=2.18

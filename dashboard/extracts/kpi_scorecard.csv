@@ -1,0 +1,29 @@
+kpi_id,kpi_name,slice_type,slice_value,is_suppressed,numerator,denominator,kpi_value,target,direction,target_status,owner,definition
+ATTR_RATE,Attrition rate,company,All,False,237.0,1470.0,0.16122448979591836,0.12,lower_is_better,off target,HR Analytics,Share of employees in the snapshot who left
+ATTR_RATE,Attrition rate,department,Human Resources,False,12.0,63.0,0.19047619047619047,0.12,lower_is_better,off target,HR Analytics,Share of employees in the snapshot who left
+ATTR_RATE,Attrition rate,department,Research & Development,False,133.0,961.0,0.1383975026014568,0.12,lower_is_better,off target,HR Analytics,Share of employees in the snapshot who left
+ATTR_RATE,Attrition rate,department,Sales,False,92.0,446.0,0.2062780269058296,0.12,lower_is_better,off target,HR Analytics,Share of employees in the snapshot who left
+EARLY_ATTR,Early-tenure attrition rate,company,All,False,102.0,342.0,0.2982456140350877,0.2,lower_is_better,off target,HR business partners,Attrition among employees with two years' tenure or less
+EARLY_ATTR,Early-tenure attrition rate,department,Human Resources,False,6.0,13.0,0.46153846153846156,0.2,lower_is_better,off target,HR business partners,Attrition among employees with two years' tenure or less
+EARLY_ATTR,Early-tenure attrition rate,department,Research & Development,False,60.0,226.0,0.26548672566371684,0.2,lower_is_better,off target,HR business partners,Attrition among employees with two years' tenure or less
+EARLY_ATTR,Early-tenure attrition rate,department,Sales,False,36.0,103.0,0.34951456310679613,0.2,lower_is_better,off target,HR business partners,Attrition among employees with two years' tenure or less
+FIRST_YEAR_RET,First-year retention rate,company,All,False,28.0,44.0,0.6363636363636364,0.8,higher_is_better,off target,Talent acquisition,Share of first-year employees who stayed
+FIRST_YEAR_RET,First-year retention rate,department,Human Resources,True,,0.0,,0.8,higher_is_better,suppressed,Talent acquisition,Share of first-year employees who stayed
+FIRST_YEAR_RET,First-year retention rate,department,Research & Development,False,18.0,27.0,0.6666666666666666,0.8,higher_is_better,off target,Talent acquisition,Share of first-year employees who stayed
+FIRST_YEAR_RET,First-year retention rate,department,Sales,False,10.0,17.0,0.5882352941176471,0.8,higher_is_better,off target,Talent acquisition,Share of first-year employees who stayed
+LOW_ENV_SAT,Low environment satisfaction share,company,All,False,284.0,1470.0,0.19319727891156463,0.15,lower_is_better,off target,Workplace services,Share of employees rating environment satisfaction 1 of 4
+LOW_ENV_SAT,Low environment satisfaction share,department,Human Resources,False,11.0,63.0,0.1746031746031746,0.15,lower_is_better,off target,Workplace services,Share of employees rating environment satisfaction 1 of 4
+LOW_ENV_SAT,Low environment satisfaction share,department,Research & Development,False,187.0,961.0,0.19458896982310095,0.15,lower_is_better,off target,Workplace services,Share of employees rating environment satisfaction 1 of 4
+LOW_ENV_SAT,Low environment satisfaction share,department,Sales,False,86.0,446.0,0.19282511210762332,0.15,lower_is_better,off target,Workplace services,Share of employees rating environment satisfaction 1 of 4
+LOW_WLB,Low work-life balance share,company,All,False,80.0,1470.0,0.05442176870748299,0.05,lower_is_better,off target,People managers,Share of employees rating work-life balance 1 of 4
+LOW_WLB,Low work-life balance share,department,Human Resources,False,4.0,63.0,0.06349206349206349,0.05,lower_is_better,off target,People managers,Share of employees rating work-life balance 1 of 4
+LOW_WLB,Low work-life balance share,department,Research & Development,False,60.0,961.0,0.062434963579604576,0.05,lower_is_better,off target,People managers,Share of employees rating work-life balance 1 of 4
+LOW_WLB,Low work-life balance share,department,Sales,False,16.0,446.0,0.03587443946188341,0.05,lower_is_better,on target,People managers,Share of employees rating work-life balance 1 of 4
+NEWHIRE_OT,New-hire overtime exposure,company,All,False,104.0,342.0,0.30409356725146197,0.2,lower_is_better,off target,People managers,Share of employees with two years' tenure or less who work overtime
+NEWHIRE_OT,New-hire overtime exposure,department,Human Resources,False,2.0,13.0,0.15384615384615385,0.2,lower_is_better,on target,People managers,Share of employees with two years' tenure or less who work overtime
+NEWHIRE_OT,New-hire overtime exposure,department,Research & Development,False,73.0,226.0,0.3230088495575221,0.2,lower_is_better,off target,People managers,Share of employees with two years' tenure or less who work overtime
+NEWHIRE_OT,New-hire overtime exposure,department,Sales,False,29.0,103.0,0.2815533980582524,0.2,lower_is_better,off target,People managers,Share of employees with two years' tenure or less who work overtime
+PROMO_STALL,Promotion-stall share,company,All,False,260.0,1470.0,0.17687074829931973,0.15,lower_is_better,off target,HR business partners,Share of employees five or more years past their last promotion
+PROMO_STALL,Promotion-stall share,department,Human Resources,False,8.0,63.0,0.12698412698412698,0.15,lower_is_better,on target,HR business partners,Share of employees five or more years past their last promotion
+PROMO_STALL,Promotion-stall share,department,Research & Development,False,160.0,961.0,0.16649323621227888,0.15,lower_is_better,off target,HR business partners,Share of employees five or more years past their last promotion
+PROMO_STALL,Promotion-stall share,department,Sales,False,92.0,446.0,0.2062780269058296,0.15,lower_is_better,off target,HR business partners,Share of employees five or more years past their last promotion

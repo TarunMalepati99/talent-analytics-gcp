@@ -1,0 +1,10 @@
+# BLS JOLTS series. ID layout: JT S <industry:6> <state:2> <area:5> <size:2> <element:2> <R|L>
+# element: QU=quits, HI=hires, JO=job openings, TS=total separations; R=rate (%)
+series:
+  - {id: JTS000000000000000QUR, industry: total_nonfarm,        measure: quits_rate}
+  - {id: JTS000000000000000HIR, industry: total_nonfarm,        measure: hires_rate}
+  - {id: JTS000000000000000JOR, industry: total_nonfarm,        measure: job_openings_rate}
+  - {id: JTS000000000000000TSR, industry: total_nonfarm,        measure: total_separations_rate}
+  - {id: JTS540099000000000QUR, industry: professional_business_services, measure: quits_rate}
+  - {id: JTS620000000000000QUR, industry: health_care_social_assistance,  measure: quits_rate}
+  - {id: JTS300000000000000QUR, industry: manufacturing,        measure: quits_rate}

@@ -1,0 +1,12 @@
+# Local development + CI (runs everything offline against DuckDB)
+apache-beam==2.77.0
+dbt-core>=1.10,<2
+dbt-duckdb>=1.9
+duckdb>=1.1
+pandas>=2.2
+scikit-learn>=1.5
+scipy>=1.11
+statsmodels>=0.14
+matplotlib>=3.8
+pyyaml>=6
+pytest>=8

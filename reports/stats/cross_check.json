@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "values_compared": 178,
+  "tolerances": {
+    "relative": 0.0001,
+    "p_value_absolute": 1e-06
+  },
+  "max_differences": {
+    "chi2_max_rel_diff": 2.7971513327078e-15,
+    "dof_mismatches": 0,
+    "chi_p_adj_max_abs_diff": 3.4416913763379853e-15,
+    "cramers_v_max_rel_diff": 4.74082063568627e-15,
+    "odds_ratio_max_rel_diff": 4.016020018625327e-15,
+    "or_ci_max_rel_diff": 4.067491294767637e-11,
+    "or_p_max_abs_diff": 1.6287110549129125e-11,
+    "interaction_lr_rel_diff": 1.4538572169279002e-13,
+    "interaction_p_abs_diff": 3.425038030968608e-14
+  },
+  "problems": []
+}

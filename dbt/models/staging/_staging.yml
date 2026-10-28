@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_hris__employees
+    description: Cleaned HRIS snapshot, one row per employee, keyed by a salted hash of the employee number.
+    columns:
+      - name: employee_key
+        tests: [unique, not_null]
+      - name: is_attrited
+        tests: [not_null]
+      - name: monthly_income
+        tests: [not_null]
+
+  - name: stg_jobs__postings
+    description: Open market postings; `is_test_fixture` marks offline test data so it can be filtered out of reporting.
+    columns:
+      - name: posting_key
+        tests: [unique, not_null]
+      - name: seniority
+        tests:
+          - accepted_values:
+              arguments: {values: [intern, entry, mid, senior, staff_plus, manager, executive]}
+
+  - name: stg_bls__jolts
+    description: BLS JOLTS monthly rates in percent, one row per series and month.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [series_id, month_start]

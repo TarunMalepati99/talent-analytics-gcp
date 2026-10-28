@@ -1,0 +1,187 @@
+[
+  {
+    "name": "_ingested_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "_source_system",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "age",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "attrition",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "business_travel",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "daily_rate",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "department",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "distance_from_home",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "education",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "education_field",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "employee_count",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "employee_number",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "environment_satisfaction",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "gender",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "hourly_rate",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "job_involvement",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "job_level",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "job_role",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "job_satisfaction",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "marital_status",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "monthly_income",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "monthly_rate",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "num_companies_worked",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "over18",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "over_time",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "percent_salary_hike",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "performance_rating",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "relationship_satisfaction",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "standard_hours",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "stock_option_level",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "total_working_years",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "training_times_last_year",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "work_life_balance",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "years_at_company",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "years_in_current_role",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "years_since_last_promotion",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "years_with_curr_manager",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  }
+]

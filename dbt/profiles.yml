@@ -1,0 +1,20 @@
+# Two targets, one project:
+#   local     -> DuckDB file built by scripts/load_local_duckdb.py (no cloud needed)
+#   bigquery  -> your GCP project; auth with `gcloud auth application-default login`
+talent_analytics:
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../warehouse/talent.duckdb') }}"
+      schema: talent
+      threads: 4
+    bigquery:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT') }}"
+      dataset: talent
+      location: "{{ env_var('BQ_LOCATION', 'US') }}"
+      threads: 8
+      job_execution_timeout_seconds: 600
+      priority: interactive

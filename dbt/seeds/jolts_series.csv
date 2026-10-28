@@ -1,0 +1,8 @@
+series_id,industry,measure
+JTS000000000000000QUR,total_nonfarm,quits_rate
+JTS000000000000000HIR,total_nonfarm,hires_rate
+JTS000000000000000JOR,total_nonfarm,job_openings_rate
+JTS000000000000000TSR,total_nonfarm,total_separations_rate
+JTS540099000000000QUR,professional_business_services,quits_rate
+JTS620000000000000QUR,health_care_social_assistance,quits_rate
+JTS300000000000000QUR,manufacturing,quits_rate

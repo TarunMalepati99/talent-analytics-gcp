@@ -1,0 +1,28 @@
+[
+  {
+    "name": "source",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "board",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "source_job_id",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "payload",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Untouched JSON from the ATS API"
+  },
+  {
+    "name": "ingested_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED"
+  }
+]

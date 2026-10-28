@@ -1,0 +1,28 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Install R (for the independent statistical replication)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends r-base-core
+      - run: pip install -r requirements.txt apache-airflow==3.1.0 apache-airflow-providers-google apache-airflow-providers-apache-beam "structlog==25.4.0"
+      - name: Full offline pipeline (Beam -> DuckDB -> dbt build + tests -> model -> stats + R cross-check -> validated extracts)
+        run: make local
+      - name: Unit tests (parsers, Beam transforms, DAG integrity)
+        run: make test
+
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform -chdir=terraform fmt -check
+      - run: terraform -chdir=terraform init -backend=false
+      - run: terraform -chdir=terraform validate

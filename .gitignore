@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+warehouse/
+data/raw/
+data/staged/
+dbt/target*/
+dbt/logs/
+dbt/dbt_packages/
+logs/
+terraform/.terraform/
+terraform/*.tfstate*
+terraform/terraform.tfvars
+.env
+.user.yml

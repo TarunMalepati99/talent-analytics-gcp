@@ -1,0 +1,106 @@
+{
+  "note": "Local scikit-learn mirror of bqml/01_train_attrition_model.sql; not BigQuery ML output.",
+  "metrics": {
+    "train_rows": 1196,
+    "eval_rows": 274,
+    "eval_positive_rate": 0.161,
+    "roc_auc": 0.895,
+    "precision_at_0_5": 0.416,
+    "recall_at_0_5": 0.841
+  },
+  "top_coefficients": [
+    {
+      "feature": "job_role_Research Director",
+      "coef": -1.388
+    },
+    {
+      "feature": "job_level_4",
+      "coef": -1.29
+    },
+    {
+      "feature": "job_level_1",
+      "coef": 0.876
+    },
+    {
+      "feature": "works_overtime_False",
+      "coef": -0.752
+    },
+    {
+      "feature": "business_travel_Non-Travel",
+      "coef": -0.677
+    },
+    {
+      "feature": "stock_option_level_0",
+      "coef": 0.654
+    },
+    {
+      "feature": "works_overtime_True",
+      "coef": 0.652
+    },
+    {
+      "feature": "job_role_Human Resources",
+      "coef": 0.642
+    },
+    {
+      "feature": "business_travel_Travel_Frequently",
+      "coef": 0.64
+    },
+    {
+      "feature": "job_level_5",
+      "coef": 0.61
+    },
+    {
+      "feature": "job_role_Manager",
+      "coef": -0.588
+    },
+    {
+      "feature": "job_role_Sales Executive",
+      "coef": 0.58
+    }
+  ],
+  "current_employees_scored": 1233,
+  "high_risk_threshold": 0.7,
+  "high_risk_employees": 100,
+  "fairness_audit": {
+    "gender": {
+      "adverse_impact_ratio": 0.803,
+      "passes_four_fifths": true,
+      "groups": {
+        "Female": {
+          "n": 501,
+          "flag_rate": 0.092
+        },
+        "Male": {
+          "n": 732,
+          "flag_rate": 0.074
+        }
+      }
+    },
+    "age_band": {
+      "adverse_impact_ratio": 0.402,
+      "passes_four_fifths": false,
+      "groups": {
+        "25-34": {
+          "n": 442,
+          "flag_rate": 0.077
+        },
+        "35-44": {
+          "n": 454,
+          "flag_rate": 0.075
+        },
+        "45-54": {
+          "n": 220,
+          "flag_rate": 0.068
+        },
+        "55+": {
+          "n": 58,
+          "flag_rate": 0.121
+        },
+        "<25": {
+          "n": 59,
+          "flag_rate": 0.169
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: talent_raw
+    schema: "{{ var('raw_schema') }}"
+    description: Landing tables loaded from GCS by the Composer DAG (or scripts/load_local_duckdb.py locally).
+    tables:
+      - name: hris_employees
+        description: >
+          HRIS employee snapshot. Stand-in for a Workday/BambooHR export: IBM's public HR Analytics
+          Employee Attrition dataset, which IBM describes as fictional. One row per employee.
+        config:
+          loaded_at_field: _ingested_at
+        columns:
+          - name: employee_number
+            tests: [unique, not_null]
+          - name: attrition
+            tests:
+              - accepted_values:
+                  arguments: {values: ["Yes", "No"]}
+      - name: job_postings_normalized
+        description: Open postings from public Greenhouse/Lever boards, normalized and deduplicated by the Dataflow job.
+        config:
+          loaded_at_field: ingested_at
+          freshness:
+            warn_after: {count: 2, period: day}
+            error_after: {count: 7, period: day}
+        columns:
+          - name: posting_key
+            tests: [unique, not_null]
+      - name: bls_jolts
+        description: Monthly BLS JOLTS observations (national rates, %).
+        columns:
+          - name: series_id
+            tests:
+              - relationships:
+                  arguments: {to: ref('jolts_series'), field: series_id}

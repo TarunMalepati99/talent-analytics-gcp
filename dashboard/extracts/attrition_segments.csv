@@ -1,0 +1,53 @@
+department,job_role,role_family,tenure_band,headcount,is_suppressed,leavers,attrition_rate
+Human Resources,Human Resources,people_hr,1: 1-2 yrs,13,False,6.0,0.46153846153846156
+Human Resources,Human Resources,people_hr,2: 3-5 yrs,20,False,4.0,0.2
+Human Resources,Human Resources,people_hr,3: 6-10 yrs,16,False,1.0,0.0625
+Human Resources,Human Resources,people_hr,4: 10+ yrs,3,True,,
+Human Resources,Manager,management,2: 3-5 yrs,3,True,,
+Human Resources,Manager,management,3: 6-10 yrs,2,True,,
+Human Resources,Manager,management,4: 10+ yrs,6,True,,
+Research & Development,Healthcare Representative,sales,0: <1 yr,2,True,,
+Research & Development,Healthcare Representative,sales,1: 1-2 yrs,16,False,3.0,0.1875
+Research & Development,Healthcare Representative,sales,2: 3-5 yrs,32,False,0.0,0.0
+Research & Development,Healthcare Representative,sales,3: 6-10 yrs,51,False,4.0,0.0784313725490196
+Research & Development,Healthcare Representative,sales,4: 10+ yrs,30,False,2.0,0.06666666666666667
+Research & Development,Laboratory Technician,research,0: <1 yr,11,False,7.0,0.6363636363636364
+Research & Development,Laboratory Technician,research,1: 1-2 yrs,77,False,28.0,0.36363636363636365
+Research & Development,Laboratory Technician,research,2: 3-5 yrs,85,False,16.0,0.18823529411764706
+Research & Development,Laboratory Technician,research,3: 6-10 yrs,66,False,10.0,0.15151515151515152
+Research & Development,Laboratory Technician,research,4: 10+ yrs,20,False,1.0,0.05
+Research & Development,Manager,management,0: <1 yr,1,True,,
+Research & Development,Manager,management,1: 1-2 yrs,6,True,,
+Research & Development,Manager,management,2: 3-5 yrs,9,True,,
+Research & Development,Manager,management,3: 6-10 yrs,12,False,2.0,0.16666666666666666
+Research & Development,Manager,management,4: 10+ yrs,26,False,0.0,0.0
+Research & Development,Manufacturing Director,operations,0: <1 yr,2,True,,
+Research & Development,Manufacturing Director,operations,1: 1-2 yrs,16,False,2.0,0.125
+Research & Development,Manufacturing Director,operations,2: 3-5 yrs,43,False,3.0,0.06976744186046512
+Research & Development,Manufacturing Director,operations,3: 6-10 yrs,58,False,4.0,0.06896551724137931
+Research & Development,Manufacturing Director,operations,4: 10+ yrs,26,False,1.0,0.038461538461538464
+Research & Development,Research Director,research,0: <1 yr,1,True,,
+Research & Development,Research Director,research,1: 1-2 yrs,9,True,,
+Research & Development,Research Director,research,2: 3-5 yrs,18,False,0.0,0.0
+Research & Development,Research Director,research,3: 6-10 yrs,19,False,0.0,0.0
+Research & Development,Research Director,research,4: 10+ yrs,33,False,2.0,0.06060606060606061
+Research & Development,Research Scientist,research,0: <1 yr,10,False,2.0,0.2
+Research & Development,Research Scientist,research,1: 1-2 yrs,75,False,18.0,0.24
+Research & Development,Research Scientist,research,2: 3-5 yrs,107,False,12.0,0.11214953271028037
+Research & Development,Research Scientist,research,3: 6-10 yrs,80,False,14.0,0.175
+Research & Development,Research Scientist,research,4: 10+ yrs,20,False,1.0,0.05
+Sales,Manager,management,0: <1 yr,1,True,,
+Sales,Manager,management,1: 1-2 yrs,6,True,,
+Sales,Manager,management,2: 3-5 yrs,2,True,,
+Sales,Manager,management,3: 6-10 yrs,6,True,,
+Sales,Manager,management,4: 10+ yrs,22,False,2.0,0.09090909090909091
+Sales,Sales Executive,sales,0: <1 yr,9,True,,
+Sales,Sales Executive,sales,1: 1-2 yrs,39,False,12.0,0.3076923076923077
+Sales,Sales Executive,sales,2: 3-5 yrs,91,False,13.0,0.14285714285714285
+Sales,Sales Executive,sales,3: 6-10 yrs,129,False,19.0,0.14728682170542637
+Sales,Sales Executive,sales,4: 10+ yrs,58,False,10.0,0.1724137931034483
+Sales,Sales Representative,sales,0: <1 yr,7,True,,
+Sales,Sales Representative,sales,1: 1-2 yrs,41,False,17.0,0.4146341463414634
+Sales,Sales Representative,sales,2: 3-5 yrs,24,False,11.0,0.4583333333333333
+Sales,Sales Representative,sales,3: 6-10 yrs,9,True,,
+Sales,Sales Representative,sales,4: 10+ yrs,2,True,,

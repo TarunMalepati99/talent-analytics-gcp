@@ -1,0 +1,10 @@
+job_role,role_family,mapping_note
+Sales Executive,sales,
+Sales Representative,sales,
+Healthcare Representative,sales,Field sales role in a healthcare/pharma context
+Research Scientist,research,
+Research Director,research,Director-level; kept with research to compare like-for-like demand
+Laboratory Technician,research,
+Manufacturing Director,operations,
+Manager,management,
+Human Resources,people_hr,

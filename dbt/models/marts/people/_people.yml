@@ -1,0 +1,186 @@
+version: 2
+
+models:
+  - name: dim_employee
+    description: >
+      Employee-grain people table. Restricted dataset: analysts with the Fine-Grained Reader
+      role see compensation and demographics; everyone else with access sees them masked.
+    columns:
+      - name: employee_key
+        description: Salted hash of the HRIS employee number.
+        tests: [unique, not_null]
+      - name: department
+        description: HRIS department (Sales, Research & Development, Human Resources).
+      - name: job_role
+        description: HRIS job title.
+      - name: role_family
+        description: Job role mapped to a market role family (seed job_role_family_map).
+      - name: job_level
+        description: Job level 1 (entry) to 5 (executive).
+      - name: tenure_band
+        description: Years at company banded as <1, 1-2, 3-5, 6-10, 10+.
+      - name: years_at_company
+        description: Whole years at the company.
+      - name: years_since_last_promotion
+        description: Whole years since the employee's last promotion.
+      - name: is_promotion_stalled
+        description: True when years_since_last_promotion is at least var promotion_stall_years (5).
+      - name: works_overtime
+        description: True when the HRIS overtime flag is Yes.
+      - name: business_travel
+        description: Non-Travel, Travel_Rarely or Travel_Frequently.
+      - name: pay_quartile_in_level
+        description: Pay quartile among peers at the same job level (1 = lowest-paid quarter).
+        tests:
+          - accepted_values:
+              arguments: {values: [1, 2, 3, 4], quote: false}
+      - name: monthly_income
+        description: Monthly base pay.
+        config: {meta: {sensitivity: compensation}}
+      - name: annual_income
+        description: monthly_income x 12.
+        config: {meta: {sensitivity: compensation}}
+      - name: stock_option_level
+        description: Equity grant level (0-3).
+        config: {meta: {sensitivity: compensation}}
+      - name: job_satisfaction
+        description: Survey rating, 1 (low) to 4 (very high).
+      - name: environment_satisfaction
+        description: Survey rating, 1 (low) to 4 (very high).
+      - name: work_life_balance
+        description: Survey rating, 1 (bad) to 4 (best).
+      - name: education_level
+        description: Highest education, coded 1 Below College to 5 Doctor.
+      - name: education_field
+        description: Field of the employee's highest education.
+      - name: age_band
+        description: Age banded as <25, 25-34, 35-44, 45-54, 55+.
+        config: {meta: {sensitivity: demographics}}
+      - name: gender
+        description: Gender as recorded in the HRIS.
+        config: {meta: {sensitivity: demographics}}
+      - name: marital_status
+        description: Single, Married or Divorced.
+        config: {meta: {sensitivity: demographics}}
+      - name: is_attrited
+        description: True when the HRIS attrition flag is Yes (window undocumented by IBM; treated as 12 months).
+        tests: [not_null]
+
+  - name: fct_attrition_segments
+    description: Attrition by department x job role x tenure band, with small-cell suppression.
+    columns:
+      - name: segment_key
+        description: Hash of department | job role | tenure band.
+        tests: [unique, not_null]
+      - name: department
+        description: HRIS department.
+      - name: job_role
+        description: HRIS job title.
+      - name: role_family
+        description: Market role family for the job role.
+      - name: tenure_band
+        description: Tenure band of the segment.
+      - name: headcount
+        description: Employees in the segment.
+      - name: is_suppressed
+        description: True when headcount is under var min_cell_size (10); rates are then null.
+      - name: leavers
+        description: Leavers in the segment (null when suppressed).
+      - name: attrition_rate
+        description: leavers / headcount (null when suppressed).
+        tests: [is_proportion]
+      - name: avg_monthly_income
+        description: Average monthly pay in the segment (null when suppressed).
+        config: {meta: {sensitivity: compensation}}
+
+  - name: mart_attrition_drivers
+    description: Attrition rate and lift vs the company rate for each level of each candidate driver.
+    tests:
+      - unique_combination:
+          arguments: {columns: [factor, factor_level]}
+    columns:
+      - name: factor
+        description: Candidate driver (overtime, tenure_band, job_level, ...).
+      - name: factor_level
+        description: Level of the driver.
+      - name: headcount
+        description: Employees at this level.
+      - name: leavers
+        description: Leavers at this level (null when suppressed).
+      - name: attrition_rate
+        description: leavers / headcount (null when suppressed).
+        tests: [is_proportion]
+      - name: company_rate
+        description: Company-wide attrition rate.
+      - name: lift_vs_company
+        description: attrition_rate / company_rate; 2.0 means twice the company rate.
+
+  - name: mart_kpi_scorecard
+    description: >
+      KPI scorecard, one row per KPI x slice (company and each department). KPI names,
+      definitions, targets and owners come from the kpi_definitions seed; numerators and
+      denominators are defined in the model. Slices under the minimum cell size are suppressed.
+    tests:
+      - unique_combination:
+          arguments: {columns: [kpi_id, slice_type, slice_value]}
+    columns:
+      - name: kpi_row_key
+        description: Hash of kpi_id | slice_type | slice_value.
+        tests: [unique, not_null]
+      - name: kpi_id
+        description: KPI identifier (see seed kpi_definitions).
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('kpi_definitions'), field: kpi_id}
+      - name: kpi_name
+        description: Human-readable KPI name.
+      - name: slice_type
+        description: company or department.
+        tests:
+          - accepted_values:
+              arguments: {values: ['company', 'department']}
+      - name: slice_value
+        description: All for the company row, otherwise the department name.
+      - name: is_suppressed
+        description: True when the denominator is under var min_cell_size (10).
+      - name: numerator
+        description: Count meeting the KPI condition (null when suppressed).
+      - name: denominator
+        description: Population the KPI is measured over.
+      - name: kpi_value
+        description: numerator / denominator (null when suppressed).
+        tests: [is_proportion]
+      - name: target
+        description: Target value from the seed (placeholder until agreed with the owner).
+      - name: direction
+        description: lower_is_better or higher_is_better.
+      - name: target_status
+        description: on target, off target or suppressed.
+        tests:
+          - accepted_values:
+              arguments: {values: ['on target', 'off target', 'suppressed']}
+      - name: owner
+        description: Team accountable for the KPI.
+      - name: definition
+        description: Plain-language definition shown in the dashboard tooltip.
+
+  - name: mart_attrition_vs_benchmark
+    description: Company attrition vs trailing-12-month BLS JOLTS quits and total separations, by industry.
+    columns:
+      - name: industry
+        description: JOLTS industry.
+      - name: benchmark_measure
+        description: quits_rate or total_separations_rate.
+      - name: through_month
+        description: Latest JOLTS month included.
+      - name: months_used
+        description: Should be 12; fewer means BLS hasn't published a full year in the window.
+      - name: benchmark_annual_rate
+        description: Sum of the latest 12 monthly JOLTS rates, as a proportion.
+      - name: company_headcount
+        description: Employees in the snapshot.
+      - name: company_attrition_rate
+        description: Company attrition rate (assumes a 12-month window).
+      - name: company_vs_benchmark_ratio
+        description: company_attrition_rate / benchmark_annual_rate.

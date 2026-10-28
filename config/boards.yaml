@@ -1,0 +1,14 @@
+# Public job boards to pull open postings from (no auth needed).
+# Board tokens are the slug in the careers URL:
+#   boards.greenhouse.io/<token>   or   jobs.lever.co/<token>
+# Boards move between ATS vendors; if one 404s, the extractor logs a warning and
+# keeps going. Check each token in a browser before relying on it.
+greenhouse:
+  - stripe
+  - airbnb
+  - databricks
+  - figma
+  - robinhood
+lever:
+  - palantir
+  - spotify
