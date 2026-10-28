@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Talent Retention Analysis</title>
+<meta name="description" content="Attrition KPIs, drivers and significance tests from the talent-analytics-gcp pipeline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  /* Tokens mirror the dashboard kit the page was written for. Light first, dark redefines. */
+  :root {
+    color-scheme: light;
+    --font-anthropic-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --cds-font-size-caption: 0.78rem; --cds-font-size-body: 0.9rem; --cds-font-size-heading: 1.05rem; --cds-font-size-title: 2rem;
+    --cds-font-weight-medium: 500;
+    --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 16px; --cds-gap-lg: 24px; --cds-gap-xl: 36px;
+    --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px;
+    --cds-radius: 6px; --cds-dur-slow: 300ms;
+    --color-bg: #f7f8f9; --color-panel: #ffffff; --color-fg: #15191e; --color-fg-muted: #5b6470;
+    --color-border-line: #dfe3e8; --color-ok: #1b7f4c; --color-bad: #c2362b;
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+    --cds-chart-muted: #b5bcc5; --cds-chart-grid: #eceff2; --cds-chart-axis: #c9ced5; --cds-chart-reference: #6b7480;
+    --cds-surface-popover: #ffffff; --cds-border: #d5dae0; --cds-shadow-popover: 0 4px 16px rgba(20, 30, 45, .12); --cds-text-secondary: #5b6470;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --color-bg: #111418; --color-panel: #181c21; --color-fg: #eef1f4; --color-fg-muted: #a3acb8;
+      --color-border-line: #2a3038; --color-ok: #4cc38a; --color-bad: #f0776c;
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+      --cds-chart-muted: #4a525d; --cds-chart-grid: #232930; --cds-chart-axis: #39414b; --cds-chart-reference: #9aa3ae;
+      --cds-surface-popover: #1f242a; --cds-border: #333a43; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45); --cds-text-secondary: #a3acb8;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg: #111418; --color-panel: #181c21; --color-fg: #eef1f4; --color-fg-muted: #a3acb8;
+    --color-border-line: #2a3038; --color-ok: #4cc38a; --color-bad: #f0776c;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --cds-chart-muted: #4a525d; --cds-chart-grid: #232930; --cds-chart-axis: #39414b; --cds-chart-reference: #9aa3ae;
+    --cds-surface-popover: #1f242a; --cds-border: #333a43; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45); --cds-text-secondary: #a3acb8;
+  }
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); }
+  #dash-root { max-width: 76rem; margin-inline: auto; padding-block: 40px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .dash-skeleton:empty { background: var(--cds-chart-grid); border-radius: var(--cds-radius); }
+  b.dash-skeleton, p.dash-skeleton { color: transparent; background: var(--cds-chart-grid); border-radius: 4px; }
+  :focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+  .ta-foot { margin-top: var(--cds-gap-xl); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+  // Minimal stand-in for the dashboard kit: loads the CSV extracts and runs each drawing.
+  window.dash = (() => {
+    const sources = {
+      kpi_scorecard: 'data/kpi_scorecard.csv',
+      attrition_by_factor: 'data/attrition_by_factor.csv',
+      adjusted_odds_ratios: 'data/adjusted_odds_ratios.csv',
+      overtime_by_tenure: 'data/overtime_by_tenure.csv',
+      significance_tests: 'data/significance_tests.csv',
+    };
+    const store = {};
+    const draws = new Map();
+    const run = (name) => {
+      const fn = draws.get(name);
+      if (!fn) return;
+      document.querySelectorAll(`[data-draw="${name}"]`).forEach((el) => { try { fn(el); } catch (e) { console.error(name, e); } });
+    };
+    const runAll = () => draws.forEach((_, name) => run(name));
+    let t;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(runAll, 120); });
+    return {
+      colors: ['var(--series-1)', 'var(--series-2)', 'var(--series-3)'],
+      data: (id) => store[id] || { status: 'loading', data: [] },
+      draw: (name, fn) => { if (fn) draws.set(name, fn); run(name); },
+      onData: () => {},
+      load: () => Promise.all(Object.entries(sources).map(([id, url]) =>
+        d3.csv(url).then((rows) => { store[id] = { status: 'ok', data: rows, columns: rows.columns }; })
+          .catch(() => { store[id] = { status: 'error', data: [] }; })
+      )).then(runAll),
+    };
+  })();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+  .ta { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); }
+  .ta-head { display: flex; flex-direction: column; gap: var(--cds-gap-sm); max-width: 62rem; }
+  .ta-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .ta-lede { font-size: var(--cds-font-size-heading); margin: 0; line-height: 1.45; }
+  .ta .ta-lede b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ta-caveat { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .ta-caveat a { color: inherit; }
+  .ta-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
+  .ta-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+  .ta-tile-label { font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin: 0; }
+  .ta-tile-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; margin: 0; line-height: 1.1; }
+  .ta-tile-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); flex-wrap: wrap; }
+  .ta-pill { border: 1px solid var(--color-border-line); border-radius: 999px; padding: 1px var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; }
+  .ta-pill.is-on { color: var(--color-ok); }
+  .ta-pill.is-off { color: var(--color-bad); }
+  .ta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+  .ta-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .ta-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; line-height: 1.45; }
+  .ta-chart { position: relative; width: 100%; min-height: 280px; }
+  .ta-chart.is-tall { min-height: 560px; }
+  .ta-chart svg { display: block; }
+  .ta-legend { display: flex; gap: var(--cds-gap-md); flex-wrap: wrap; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; padding: 0; list-style: none; }
+  .ta-legend li { display: flex; align-items: center; gap: var(--cds-gap-xs); }
+  .ta-sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .ta-sw.is-hollow { border: 2px solid var(--cds-chart-muted); border-radius: 50%; width: 8px; height: 8px; }
+  .ta-controls { display: flex; align-items: center; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-body); flex-wrap: wrap; }
+  .ta-controls select { font: inherit; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+  .ta-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+  .ta-tip .k { color: var(--cds-text-secondary); }
+  .ta-fail { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .ta-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+  .ta-table-wrap { overflow: auto; max-height: 26rem; }
+  .ta-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+  .ta-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+  .ta-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+  .ta-table .r { text-align: right; white-space: nowrap; }
+  .ta-table td.is-on { color: var(--color-ok); }
+  .ta-table td.is-off { color: var(--color-bad); }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 40rem) { .ta-hide-narrow { display: none; } }
+</style>
+
+<div class="ta">
+  <header class="ta-head" id="summary">
+    <h1 class="ta-title">Talent retention analysis</h1>
+    <p class="ta-lede">Attrition is <b data-draw="kpi-value" data-kpi="ATTR_RATE" class="dash-skeleton" data-source="kpi_scorecard" data-field="kpi_value" data-where="kpi_id=ATTR_RATE&amp;slice_type=company">—</b> company-wide. Working overtime carries <b data-draw="ot-or" class="dash-skeleton" data-source="adjusted_odds_ratios" data-field="odds_ratio" data-where="term=works_overtime">—</b>× the odds of leaving, even after accounting for tenure, job level, travel, department, satisfaction and demographics.</p>
+    <p class="ta-caveat">Built on IBM's sample HR attrition dataset (<span data-draw="headcount" data-source="kpi_scorecard" data-field="denominator" data-where="kpi_id=ATTR_RATE&amp;slice_type=company">—</span> employees, fictional), so it shows the method rather than a real company. Pipeline, tests and R replication: <a href="https://github.com/TarunMalepati99/talent-analytics-gcp">github.com/TarunMalepati99/talent-analytics-gcp</a>.</p>
+  </header>
+
+  <section class="ta-tiles" id="kpis" aria-label="Retention KPIs">
+    <div class="ta-card">
+      <p class="ta-tile-label">Attrition rate</p>
+      <p class="ta-tile-value" data-draw="kpi-value" data-kpi="ATTR_RATE" data-source="kpi_scorecard" data-field="kpi_value" data-where="kpi_id=ATTR_RATE&amp;slice_type=company">—</p>
+      <div class="ta-tile-foot"><span>Target <span data-draw="kpi-target" data-kpi="ATTR_RATE" data-source="kpi_scorecard" data-field="target" data-where="kpi_id=ATTR_RATE&amp;slice_type=company">—</span></span><span class="ta-pill" data-draw="kpi-status" data-kpi="ATTR_RATE" data-source="kpi_scorecard" data-field="target_status" data-where="kpi_id=ATTR_RATE&amp;slice_type=company">—</span></div>
+    </div>
+    <div class="ta-card">
+      <p class="ta-tile-label">Attrition, first two years</p>
+      <p class="ta-tile-value" data-draw="kpi-value" data-kpi="EARLY_ATTR" data-source="kpi_scorecard" data-field="kpi_value" data-where="kpi_id=EARLY_ATTR&amp;slice_type=company">—</p>
+      <div class="ta-tile-foot"><span>Target <span data-draw="kpi-target" data-kpi="EARLY_ATTR" data-source="kpi_scorecard" data-field="target" data-where="kpi_id=EARLY_ATTR&amp;slice_type=company">—</span></span><span class="ta-pill" data-draw="kpi-status" data-kpi="EARLY_ATTR" data-source="kpi_scorecard" data-field="target_status" data-where="kpi_id=EARLY_ATTR&amp;slice_type=company">—</span></div>
+    </div>
+    <div class="ta-card">
+      <p class="ta-tile-label">New hires working overtime</p>
+      <p class="ta-tile-value" data-draw="kpi-value" data-kpi="NEWHIRE_OT" data-source="kpi_scorecard" data-field="kpi_value" data-where="kpi_id=NEWHIRE_OT&amp;slice_type=company">—</p>
+      <div class="ta-tile-foot"><span>Target <span data-draw="kpi-target" data-kpi="NEWHIRE_OT" data-source="kpi_scorecard" data-field="target" data-where="kpi_id=NEWHIRE_OT&amp;slice_type=company">—</span></span><span class="ta-pill" data-draw="kpi-status" data-kpi="NEWHIRE_OT" data-source="kpi_scorecard" data-field="target_status" data-where="kpi_id=NEWHIRE_OT&amp;slice_type=company">—</span></div>
+    </div>
+    <div class="ta-card">
+      <p class="ta-tile-label">First-year retention</p>
+      <p class="ta-tile-value" data-draw="kpi-value" data-kpi="FIRST_YEAR_RET" data-source="kpi_scorecard" data-field="kpi_value" data-where="kpi_id=FIRST_YEAR_RET&amp;slice_type=company">—</p>
+      <div class="ta-tile-foot"><span>Target <span data-draw="kpi-target" data-kpi="FIRST_YEAR_RET" data-source="kpi_scorecard" data-field="target" data-where="kpi_id=FIRST_YEAR_RET&amp;slice_type=company">—</span></span><span class="ta-pill" data-draw="kpi-status" data-kpi="FIRST_YEAR_RET" data-source="kpi_scorecard" data-field="target_status" data-where="kpi_id=FIRST_YEAR_RET&amp;slice_type=company">—</span></div>
+    </div>
+  </section>
+  <p class="ta-note" style="margin-top: calc(-1 * var(--cds-gap-lg));">Targets are placeholders until agreed with each KPI owner.</p>
+
+  <section class="ta-grid" aria-label="Drivers">
+    <div class="ta-card" id="overtime">
+      <h2 class="ta-h2">Overtime raises attrition at every tenure</h2>
+      <p class="ta-note">Share who left, by years at the company. The gap is widest in percentage points for new hires because their baseline risk is higher, not because overtime affects them differently.</p>
+      <ul class="ta-legend"><li><span class="ta-sw" data-sw="0"></span>Overtime</li><li><span class="ta-sw" data-sw="muted"></span>No overtime</li></ul>
+      <div class="ta-chart dash-skeleton" data-draw="ot-tenure" data-source="overtime_by_tenure"></div>
+    </div>
+    <div class="ta-card" id="drivers">
+      <h2 class="ta-h2">What predicts leaving, other factors held constant</h2>
+      <p class="ta-note">Adjusted odds ratios from a logistic regression with 95% confidence intervals, on a log scale. Right of 1 means more likely to leave than the reference group.</p>
+      <ul class="ta-legend"><li><span class="ta-sw" data-sw="0"></span>Significant, p &lt; 0.05</li><li><span class="ta-sw is-hollow"></span>Not significant</li></ul>
+      <div class="ta-chart is-tall dash-skeleton" data-draw="forest" data-source="adjusted_odds_ratios"></div>
+    </div>
+  </section>
+
+  <section class="ta-card" id="explore">
+    <h2 class="ta-h2">Attrition by factor</h2>
+    <p class="ta-note">Each bar is a group's attrition rate with its 95% Wilson interval; the line is the company rate. A highlighted bar's whole interval sits above the company rate. Groups under 10 people are hidden for privacy.</p>
+    <label class="ta-controls">Factor <select id="factor-select" data-draw="factor-select" aria-label="Factor" data-source="attrition_by_factor"></select></label>
+    <div class="ta-chart dash-skeleton" data-draw="factor-chart" data-source="attrition_by_factor"></div>
+  </section>
+
+  <section class="ta-grid" aria-label="Tables">
+    <div class="ta-card" id="departments">
+      <h2 class="ta-h2">KPIs by department</h2>
+      <p class="ta-note">Each retention KPI for each department, against its placeholder target.</p>
+      <div class="ta-table-wrap">
+        <table class="ta-table" data-source="kpi_scorecard" data-row-key="kpi_id,slice_value">
+          <thead><tr><th data-field="kpi_name">KPI</th><th data-field="slice_value">Department</th><th class="r" data-field="kpi_value">Value</th><th class="r ta-hide-narrow" data-field="target">Target</th><th data-field="target_status">Status</th></tr></thead>
+          <tbody data-draw="dept-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ta-card" id="significance">
+      <h2 class="ta-h2">Which factors are significant</h2>
+      <p class="ta-note">Chi-square tests of each factor against attrition, with p-values adjusted for testing many factors at once (Benjamini-Hochberg). Cramér's V measures the strength of the link.</p>
+      <div class="ta-table-wrap">
+        <table class="ta-table" data-source="significance_tests" data-row-key="factor">
+          <thead><tr><th data-field="label">Factor</th><th class="ta-hide-narrow" data-field="factor_group">Group</th><th class="r" data-field="p_adj_bh">Adjusted p</th><th class="r" data-field="cramers_v">Cramér's V</th><th data-field="significant_bh">Significant</th></tr></thead>
+          <tbody data-draw="sig-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const num = (v) => (v === '' || v == null) ? null : Number(v);
+  const pct1 = d3.format('.1%');
+  const pct0 = d3.format('.0%');
+  const truthy = (v) => String(v).toLowerCase() === 'true';
+  const MUTED = 'var(--cds-chart-muted)';
+
+  document.querySelectorAll('[data-sw]').forEach((s) => {
+    s.style.background = s.dataset.sw === 'muted' ? MUTED : dash.colors[Number(s.dataset.sw)];
+  });
+
+  const failLine = () => { const d = document.createElement('div'); d.className = 'ta-fail'; d.textContent = 'Failed to load'; return d; };
+  const settle = (el, status) => { if (status === 'ok' || status === 'error') el.classList.remove('dash-skeleton'); };
+
+  const kpiRow = (kpi) => {
+    const d = dash.data('kpi_scorecard');
+    return d.status === 'ok' ? d.data.find((r) => r.kpi_id === kpi && r.slice_type === 'company') : null;
+  };
+
+  dash.draw('kpi-value', (el) => {
+    settle(el, dash.data('kpi_scorecard').status);
+    const r = kpiRow(el.dataset.kpi);
+    el.textContent = r && num(r.kpi_value) != null ? pct1(num(r.kpi_value)) : '—';
+  });
+  dash.draw('kpi-target', (el) => {
+    const r = kpiRow(el.dataset.kpi);
+    el.textContent = r ? (r.direction === 'lower_is_better' ? '≤ ' : '≥ ') + pct0(num(r.target)) : '—';
+  });
+  dash.draw('kpi-status', (el) => {
+    const r = kpiRow(el.dataset.kpi);
+    el.textContent = r ? r.target_status : '—';
+    el.classList.toggle('is-on', !!r && r.target_status === 'on target');
+    el.classList.toggle('is-off', !!r && r.target_status === 'off target');
+  });
+  dash.draw('headcount', (el) => {
+    const r = kpiRow('ATTR_RATE');
+    el.textContent = r ? d3.format(',')(num(r.denominator)) : '—';
+  });
+  dash.draw('ot-or', (el) => {
+    const d = dash.data('adjusted_odds_ratios');
+    settle(el, d.status);
+    const r = d.status === 'ok' ? d.data.find((x) => x.term === 'works_overtime') : null;
+    el.textContent = r ? d3.format('.1f')(num(r.odds_ratio)) : '—';
+  });
+
+  // Shared tooltip inside a chart box.
+  const tipFor = (el) => {
+    const t = document.createElement('div');
+    t.className = 'ta-tip'; t.hidden = true; el.append(t);
+    return {
+      show(ev, lines) {
+        t.replaceChildren(...lines.map(([k, v], i) => {
+          const p = document.createElement('div');
+          if (i === 0) { p.className = 'k'; p.textContent = k; } else { p.textContent = v == null ? k : `${k}: ${v}`; }
+          return p;
+        }));
+        t.hidden = false;
+        const box = el.getBoundingClientRect();
+        let x = ev.clientX - box.left + 12, y = ev.clientY - box.top + 12;
+        const w = t.offsetWidth, h = t.offsetHeight;
+        if (x + w > el.clientWidth) x = Math.max(0, ev.clientX - box.left - w - 12);
+        if (y + h > el.clientHeight) y = Math.max(0, ev.clientY - box.top - h - 12);
+        t.style.left = `${x}px`; t.style.top = `${y}px`;
+      },
+      hide() { t.hidden = true; },
+    };
+  };
+  const fitText = (sel, max) => sel.each(function () {
+    const full = this.textContent;
+    if (this.getComputedTextLength() <= max) return;
+    let t = full;
+    while (t.length > 1 && this.getComputedTextLength() > max) { t = t.slice(0, -1); this.textContent = t + '…'; }
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title'); title.textContent = full; this.append(title);
+  });
+  const bandLabel = (b) => String(b).replace(/^\d+:\s*/, '');
+  const axisText = (sel) => sel.attr('font-size', null).attr('font-family', null)
+    .call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)'))
+    .call((g) => g.selectAll('line,path').attr('stroke', 'var(--cds-chart-axis)'));
+
+  // Overtime x tenure grouped bars.
+  dash.draw('ot-tenure', (el) => {
+    const d = dash.data('overtime_by_tenure');
+    el.replaceChildren(); settle(el, d.status);
+    if (d.status === 'error') { el.append(failLine()); return; }
+    if (d.status !== 'ok') return;
+    const rows = d.data.map((r) => ({ band: r.tenure_band, grp: r.overtime_group, n: num(r.headcount), left: num(r.leavers), rate: num(r.attrition_rate) }));
+    const W = el.clientWidth || 600, H = 280, m = { t: 12, r: 8, b: 32, l: 40 };
+    const bands = [...new Set(rows.map((r) => r.band))].sort();
+    const groups = ['Overtime', 'No overtime'];
+    const x0 = d3.scaleBand(bands, [m.l, W - m.r]).paddingInner(0.28).paddingOuter(0.1);
+    const x1 = d3.scaleBand(groups, [0, x0.bandwidth()]).padding(0.1);
+    const y = d3.scaleLinear([0, d3.max(rows, (r) => r.rate ?? 0)], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Attrition rate by tenure band, overtime vs no overtime');
+    svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(pct0).tickSize(0).tickPadding(6)).call(axisText).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x0).tickFormat(bandLabel).tickSize(0).tickPadding(8)).call(axisText);
+    const tip = tipFor(el);
+    const bw = Math.min(32, x1.bandwidth());
+    svg.append('g').selectAll('rect').data(rows.filter((r) => r.rate != null)).join('rect')
+      .attr('x', (r) => x0(r.band) + x1(r.grp) + (x1.bandwidth() - bw) / 2).attr('width', bw)
+      .attr('y', (r) => y(r.rate)).attr('height', (r) => y(0) - y(r.rate)).attr('rx', 3)
+      .attr('fill', (r) => r.grp === 'Overtime' ? dash.colors[0] : MUTED)
+      .on('pointermove', (ev, r) => tip.show(ev, [[`${bandLabel(r.band)} · ${r.grp}`], ['Left', pct1(r.rate)], ['Leavers', `${r.left} of ${r.n}`]]))
+      .on('pointerleave', () => tip.hide());
+  });
+
+  // Forest plot of adjusted odds ratios.
+  const FACTOR_NAMES = { works_overtime: 'Overtime', tenure_band: 'Tenure', job_level: 'Job level', business_travel: 'Travel', department: 'Department', is_promotion_stalled: 'Promotion stalled', stock_option_level: 'Stock options', job_satisfaction: 'Job satisfaction', environment_satisfaction: 'Environment satisfaction', work_life_balance: 'Work-life balance', age_band: 'Age', gender: 'Gender', marital_status: 'Marital status' };
+  const termLabel = (r) => {
+    const f = FACTOR_NAMES[r.factor] || r.factor;
+    if (r.level === 'Yes') return f;
+    if (r.level === 'per point') return `${f}, per point`;
+    return `${f}: ${bandLabel(r.level).replace(/_/g, ' ')}`;
+  };
+  dash.draw('forest', (el) => {
+    const d = dash.data('adjusted_odds_ratios');
+    el.replaceChildren(); settle(el, d.status);
+    if (d.status === 'error') { el.append(failLine()); return; }
+    if (d.status !== 'ok') return;
+    const rows = d.data.map((r) => ({ ...r, or: num(r.odds_ratio), lo: num(r.ci_low), hi: num(r.ci_high), p: num(r.p_value), sig: truthy(r.significant) }))
+      .sort((a, b) => b.or - a.or);
+    const W = el.clientWidth || 600, row = 20, m = { t: 8, r: 12, b: 28, l: 0 };
+    const H = m.t + m.b + rows.length * row;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Adjusted odds ratios of leaving with 95% intervals');
+    const labels = svg.append('g').selectAll('text').data(rows).join('text').text(termLabel)
+      .attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').attr('dominant-baseline', 'middle');
+    const capF = W * 0.45 - 10;
+    fitText(labels, capF);
+    let widest = 0; labels.each(function () { widest = Math.max(widest, this.getComputedTextLength()); });
+    m.l = Math.min(widest, capF) + 10;
+    labels.attr('x', m.l - 8).attr('text-anchor', 'end').attr('y', (r, i) => m.t + i * row + row / 2);
+    const x = d3.scaleLog([Math.min(0.2, d3.min(rows, (r) => r.lo)), Math.max(10, d3.max(rows, (r) => r.hi))], [m.l, W - m.r]);
+    const ticks = [0.25, 0.5, 1, 2, 4, 8].filter((t) => t >= x.domain()[0] && t <= x.domain()[1]);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', x).attr('x2', x).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('line').attr('x1', x(1)).attr('x2', x(1)).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(ticks).tickFormat((t) => String(t)).tickSize(0).tickPadding(8)).call(axisText).call((g) => g.select('.domain').remove());
+    const tip = tipFor(el);
+    const g = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (r, i) => `translate(0,${m.t + i * row + row / 2})`);
+    g.append('line').attr('x1', (r) => x(r.lo)).attr('x2', (r) => x(r.hi)).attr('stroke', (r) => r.sig ? dash.colors[0] : MUTED).attr('stroke-width', 2).attr('stroke-linecap', 'round');
+    g.append('circle').attr('cx', (r) => x(r.or)).attr('r', 4.5).attr('stroke-width', 2)
+      .attr('stroke', (r) => r.sig ? dash.colors[0] : MUTED).attr('fill', (r) => r.sig ? dash.colors[0] : 'var(--color-panel)');
+    g.append('rect').attr('x', m.l).attr('width', W - m.l - m.r).attr('y', -row / 2).attr('height', row).attr('fill', 'transparent')
+      .on('pointermove', (ev, r) => tip.show(ev, [[termLabel(r)], ['Odds ratio', d3.format('.2f')(r.or)], ['95% CI', `${d3.format('.2f')(r.lo)} to ${d3.format('.2f')(r.hi)}`], ['p', d3.format('.2g')(r.p)], ['vs', r.reference || 'one point lower']]))
+      .on('pointerleave', () => tip.hide());
+  });
+
+  // Factor picker and chart.
+  window.taFactor = window.taFactor || 'tenure_band';
+  dash.draw('factor-select', (sel) => {
+    const d = dash.data('attrition_by_factor');
+    const seen = new Map();
+    (d.status === 'ok' ? d.data : []).forEach((r) => { if (!seen.has(r.factor)) seen.set(r.factor, r.label); });
+    sel.replaceChildren(...[...seen].map(([v, l]) => new Option(l, v)));
+    if (seen.size) sel.value = seen.has(window.taFactor) ? window.taFactor : [...seen.keys()][0];
+    sel.onchange = () => { window.taFactor = sel.value; dash.draw('factor-chart'); };
+  });
+  dash.draw('factor-chart', (el) => {
+    const d = dash.data('attrition_by_factor');
+    el.replaceChildren(); settle(el, d.status);
+    if (d.status === 'error') { el.append(failLine()); return; }
+    if (d.status !== 'ok') return;
+    const all = d.data.filter((r) => r.factor === window.taFactor);
+    if (!all.length) return;
+    const rows = all.map((r) => ({ name: bandLabel(r.level_label).replace(/_/g, ' '), n: num(r.headcount), rate: num(r.attrition_rate), lo: num(r.ci_low), hi: num(r.ci_high), vs: r.vs_company, sup: truthy(r.is_suppressed) }));
+    const company = num(all[0].company_rate);
+    const W = el.clientWidth || 600, row = 30, m = { t: 22, r: 16, b: 28, l: 0 };
+    const H = m.t + m.b + rows.length * row;
+    el.style.minHeight = `${H}px`;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Attrition rate by group with 95% intervals');
+    const labels = svg.append('g').selectAll('text').data(rows).join('text').text((r) => r.name)
+      .attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').attr('dominant-baseline', 'middle');
+    const capC = W * 0.42 - 12;
+    fitText(labels, capC);
+    let widest = 0; labels.each(function () { widest = Math.max(widest, this.getComputedTextLength()); });
+    m.l = Math.min(widest, capC) + 12;
+    labels.attr('x', m.l - 8).attr('text-anchor', 'end').attr('y', (r, i) => m.t + i * row + row / 2);
+    const x = d3.scaleLinear([0, Math.max(company, d3.max(rows, (r) => r.hi ?? 0))], [m.l, W - m.r]).nice();
+    svg.append('g').selectAll('line').data(x.ticks(5)).join('line').attr('x1', x).attr('x2', x).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5).tickFormat(pct0).tickSize(0).tickPadding(8)).call(axisText).call((g) => g.select('.domain').remove());
+    const tip = tipFor(el);
+    const g = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (r, i) => `translate(0,${m.t + i * row})`);
+    const bh = Math.min(18, row - 8);
+    g.filter((r) => r.rate != null).append('rect').attr('x', m.l).attr('y', (row - bh) / 2).attr('height', bh)
+      .attr('width', (r) => Math.max(0, x(r.rate) - m.l)).attr('rx', 3).attr('fill', (r) => r.vs === 'above' ? dash.colors[0] : MUTED);
+    g.filter((r) => r.lo != null).append('line').attr('x1', (r) => x(r.lo)).attr('x2', (r) => x(r.hi)).attr('y1', row / 2).attr('y2', row / 2).attr('stroke', 'var(--color-fg)').attr('stroke-width', 1.5);
+    g.filter((r) => r.lo != null).selectAll('line.cap').data((r) => [r.lo, r.hi]).join('line').attr('class', 'cap')
+      .attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', row / 2 - 4).attr('y2', row / 2 + 4).attr('stroke', 'var(--color-fg)').attr('stroke-width', 1.5);
+    g.filter((r) => r.sup).append('text').attr('x', m.l + 6).attr('y', row / 2).attr('dominant-baseline', 'middle').text('Fewer than 10 people')
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)');
+    g.append('rect').attr('x', 0).attr('width', W).attr('height', row).attr('fill', 'transparent')
+      .on('pointermove', (ev, r) => tip.show(ev, r.sup ? [[r.name], ['Fewer than 10 people', null]] : [[r.name], ['Left', pct1(r.rate)], ['95% CI', `${pct1(r.lo)} to ${pct1(r.hi)}`], ['People', d3.format(',')(r.n)]]))
+      .on('pointerleave', () => tip.hide());
+    svg.append('line').attr('x1', x(company)).attr('x2', x(company)).attr('y1', m.t - 6).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+    svg.append('text').attr('x', x(company)).attr('y', m.t - 10).attr('text-anchor', x(company) > W - 90 ? 'end' : x(company) < m.l + 60 ? 'start' : 'middle').text(`Company ${pct1(company)}`)
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)');
+  });
+
+  // Tables.
+  const td = (text, cls) => { const c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; };
+  dash.draw('dept-table', (tb) => {
+    const d = dash.data('kpi_scorecard');
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const rows = d.data.filter((r) => r.slice_type === 'department');
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = `${encodeURIComponent(r.kpi_id)},${encodeURIComponent(r.slice_value)}`;
+      const v = num(r.kpi_value);
+      tr.append(td(r.kpi_name), td(r.slice_value), td(v == null ? '<10 people' : pct1(v), 'r'),
+        td((r.direction === 'lower_is_better' ? '≤ ' : '≥ ') + pct0(num(r.target)), 'r ta-hide-narrow'),
+        td(r.target_status, r.target_status === 'on target' ? 'is-on' : r.target_status === 'off target' ? 'is-off' : ''));
+      return tr;
+    }));
+  });
+  dash.draw('sig-table', (tb) => {
+    const d = dash.data('significance_tests');
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const rows = [...d.data].sort((a, b) => num(b.cramers_v) - num(a.cramers_v));
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = r.factor;
+      const sig = truthy(r.significant_bh);
+      tr.append(td(r.label), td(r.factor_group === 'demographic' ? 'Demographic' : 'Workplace', 'ta-hide-narrow'),
+        td(d3.format('.1e')(num(r.p_adj_bh)), 'r'), td(d3.format('.2f')(num(r.cramers_v)), 'r'), td(sig ? 'Yes' : 'No', sig ? 'is-on' : ''));
+      return tr;
+    }));
+  });
+</script>
+
+<p class="ta-foot">Generated from the validated extracts in <code>dashboard/extracts/</code> (8 of 8 pre-publication checks). Data: IBM's sample HR attrition dataset, which IBM describes as fictional. Built by Tarun Malepati.</p>
+</div>
+<script>dash.load();</script>
+</body>
+</html>

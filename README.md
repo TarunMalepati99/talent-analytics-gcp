@@ -8,6 +8,8 @@ scores attrition risk behind an AUC gate and a fairness gate. Compensation and
 demographic columns are protected with policy tags, dynamic masking and
 row-level security, all provisioned with **Terraform**.
 
+**Live dashboard:** https://tarunmalepati99.github.io/talent-analytics-gcp/
+
 It answers three questions for three audiences, and adds a **statistical
 significance layer** (chi-square with Benjamini–Hochberg correction, Wilson
 intervals, multivariable logistic regression) that is **independently replicated
